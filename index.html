@@ -61,31 +61,40 @@ const stages=[
 let cart=[],page="shop",step=0;
 const app=document.getElementById("app"),won=n=>n.toLocaleString("ko-KR")+"원";
 function speak(text){
- const synth = window.speechSynthesis;
- if(!synth || !("SpeechSynthesisUtterance" in window)){
-   alert("이 브라우저에서는 음성 안내를 지원하지 않아요. Safari에서 다시 열어주세요.");
-   return;
- }
- try {
-   synth.cancel();
-   synth.resume();
-   const u = new SpeechSynthesisUtterance(text);
-   u.lang = "ko-KR";
-   u.rate = 0.88;
-   u.pitch = 1.08;
-   u.volume = 1;
-   const voices = synth.getVoices();
-   const ko = voices.find(v => v.lang && v.lang.toLowerCase().startsWith("ko"));
-   if (ko) u.voice = ko;
-   u.onerror = function(event) {
-     console.warn("음성 재생 오류:", event.error);
-     alert("아이폰에서 음성을 재생하지 못했어요. 미디어 음량과 한국어 음성 설정을 확인한 뒤 Safari에서 다시 눌러주세요.");
-   };
-   synth.speak(u);
- } catch (e) {
-   console.error(e);
-   alert("음성 재생을 시작하지 못했어요. Safari에서 다시 시도해 주세요.");
- }
+  // iPhone Safari가 제공하는 기본 한국어 음성을 사용합니다.
+  const synth = window.speechSynthesis;
+  if (!synth || typeof SpeechSynthesisUtterance === "undefined") {
+    alert("이 기기에서는 음성 안내를 지원하지 않아요. Safari에서 다시 열어주세요.");
+    return;
+  }
+
+  try {
+    synth.cancel();
+    synth.resume();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ko-KR";
+    utterance.rate = 0.95;
+    utterance.pitch = 1.05;
+    utterance.volume = 1;
+
+    // 한국어 음성이 있으면 선택하고, 없으면 기기의 기본 음성에 맡깁니다.
+    const voices = synth.getVoices();
+    const koreanVoice = voices.find(voice =>
+      voice.lang && /^ko([_-]|$)/i.test(voice.lang)
+    );
+    if (koreanVoice) utterance.voice = koreanVoice;
+
+    utterance.onerror = function(event) {
+      console.warn("음성 재생 오류:", event.error);
+      alert("음성을 재생하지 못했어요. 아이폰 Safari에서 다시 눌러주세요.");
+    };
+
+    synth.speak(utterance);
+  } catch (error) {
+    console.error("음성 재생 시작 오류:", error);
+    alert("음성 재생을 시작하지 못했어요. Safari에서 다시 시도해 주세요.");
+  }
 }
 function render(){
  if(page==="shop"){
