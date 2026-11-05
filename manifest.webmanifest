@@ -1,7 +1,6 @@
 {
-  "id": "./",
   "name": "꼬마 택배 놀이 마을",
-  "short_name": "꼬마 택배",
+  "short_name": "꼬마택배",
   "lang": "ko",
   "start_url": "./index.html",
   "scope": "./",
@@ -22,8 +21,7 @@
     {
       "src": "./icons/icon-180.png",
       "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     }
   ]
 }

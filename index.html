@@ -58,21 +58,36 @@ const stages=[
 ["🚚","택배 출발!","택배 자동차가 출발했어요!","부릉부릉! 택배 자동차가 출발합니다! 안전하게 배달할게요!"],
 ["🏡","배송 완료!","딩동! 택배가 도착했어요!","딩동딩동! 택배 왔어요! 기다리던 선물이 도착했어요!"]
 ];
-let savedState={};
-try { savedState=JSON.parse(localStorage.getItem("kkoma-taekbae-state")||"{}"); } catch(e) {}
-let cart=Array.isArray(savedState.cart)?savedState.cart:[],page=savedState.page||"shop",step=Number.isInteger(savedState.step)?savedState.step:0;
-if (!["shop","cart","ordered","delivery"].includes(page)) page="shop";
-if (step<0 || step>5) step=0;
+let cart=[],page="shop",step=0;
 const app=document.getElementById("app"),won=n=>n.toLocaleString("ko-KR")+"원";
 function speak(text){
- if(!("speechSynthesis" in window)){alert("이 기기에서는 음성 안내를 지원하지 않아요. 화면의 안내 글을 읽어주세요!");return;}
- window.speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=0.88;u.pitch=1.12;
- const voices=window.speechSynthesis.getVoices();const ko=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith("ko"));if(ko)u.voice=ko;
- window.speechSynthesis.speak(u);
+ const synth = window.speechSynthesis;
+ if(!synth || !("SpeechSynthesisUtterance" in window)){
+   alert("이 브라우저에서는 음성 안내를 지원하지 않아요. Safari에서 다시 열어주세요.");
+   return;
+ }
+ try {
+   synth.cancel();
+   synth.resume();
+   const u = new SpeechSynthesisUtterance(text);
+   u.lang = "ko-KR";
+   u.rate = 0.88;
+   u.pitch = 1.08;
+   u.volume = 1;
+   const voices = synth.getVoices();
+   const ko = voices.find(v => v.lang && v.lang.toLowerCase().startsWith("ko"));
+   if (ko) u.voice = ko;
+   u.onerror = function(event) {
+     console.warn("음성 재생 오류:", event.error);
+     alert("아이폰에서 음성을 재생하지 못했어요. 미디어 음량과 한국어 음성 설정을 확인한 뒤 Safari에서 다시 눌러주세요.");
+   };
+   synth.speak(u);
+ } catch (e) {
+   console.error(e);
+   alert("음성 재생을 시작하지 못했어요. Safari에서 다시 시도해 주세요.");
+ }
 }
 function render(){
-  try { localStorage.setItem("kkoma-taekbae-state", JSON.stringify({cart,page,step})); } catch(e) {}
  if(page==="shop"){
  app.innerHTML=`<h2>1. 장난감 가게 🏪</h2><p>어떤 물건을 사고 싶니?</p>${products.map((p,i)=>`<div class="item"><div class="emoji">${p.emoji}</div><div class="grow"><b>${p.name}</b><div class="price">놀이 가격 ${won(p.price)}</div></div><button onclick="add(${i})">담기</button></div>`).join("")}<div class="total">🧺 내 장바구니<br>${cart.length?cart.map(p=>p.emoji+" "+p.name).join(" · "):"아직 물건이 없어요!"}</div><button class="full" ${cart.length?"":"disabled"} onclick="page='cart';render()">장바구니 확인하기 ➡️</button>`;
  }else if(page==="cart"){
@@ -89,11 +104,9 @@ function removeItem(i){cart.splice(i,1);render()}
 render();
 </script>
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
-      console.warn('오프라인 저장 준비를 완료하지 못했어요.', err);
-    });
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => console.warn("오프라인 저장 등록 실패", err));
   });
 }
 </script>
