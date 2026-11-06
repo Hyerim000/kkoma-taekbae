@@ -101,7 +101,7 @@ function render(){
  app.innerHTML=`<h2>1. 장난감 가게 🏪</h2><p>어떤 물건을 사고 싶니?</p>${products.map((p,i)=>`<div class="item"><div class="emoji">${p.emoji}</div><div class="grow"><b>${p.name}</b><div class="price">놀이 가격 ${won(p.price)}</div></div><button onclick="add(${i})">담기</button></div>`).join("")}<div class="total">🧺 내 장바구니<br>${cart.length?cart.map(p=>p.emoji+" "+p.name).join(" · "):"아직 물건이 없어요!"}</div><button class="full" ${cart.length?"":"disabled"} onclick="page='cart';render()">장바구니 확인하기 ➡️</button>`;
  }else if(page==="cart"){
  app.innerHTML=`<h2>2. 주문하기 🧺</h2>${cart.map((p,i)=>`<div class="item"><span class="emoji">${p.emoji}</span><b class="grow">${p.name}</b><span>${won(p.price)}</span><button class="secondary" onclick="removeItem(${i})">빼기</button></div>`).join("")}<div class="total">총 놀이 금액: ${won(cart.reduce((a,p)=>a+p.price,0))}</div><p class="price">실제 결제는 없어요. 숫자 공부를 위한 놀이 금액이에요.</p><button class="full" ${cart.length?"":"disabled"} onclick="page='ordered';render()">주문할게요! 💛</button><button class="full secondary" onclick="page='shop';render()">가게로 돌아가기</button>`;
- }else if(page==="ordered"){
+ }else if(}else if(page==="ordered"){
  app.innerHTML=`<h2>3. 주문 완료! 🎉</h2><div class="big">📋</div><h2 style="text-align:center;color:#27834c">주문이 접수되었어요!</h2><p style="text-align:center">이제 택배 아저씨가 준비할 거예요.</p><div class="total"><b>주문한 물건</b><br>${cart.map(p=>p.emoji+" "+p.name).join("<br>")}</div><button class="full" onclick="page='delivery';step=0;render()">택배 배송 구경하기 🚚</button>`;
  }else{
  const s=stages[step];
